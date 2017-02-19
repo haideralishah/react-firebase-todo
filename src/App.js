@@ -39,9 +39,22 @@ class App extends Component {
   }
   deleteTodo(todoKey) {
     console.log(todoKey, '******************');
-    fb.database().ref('todos/' + todoKey).remove();
-
-
+    fb.database().ref('todos/' + todoKey).remove()
+      .then((v) => {
+        console.log(this.state.todos, 'deleted');
+        let currentTodo = this.state.todos;
+        let indexRemove;
+        for (var i = 0; i < currentTodo.length; i++) {
+          if (currentTodo[i].id === todoKey) {
+            indexRemove = i;
+          }
+        }
+        console.log(indexRemove, 'indexRemove');
+        currentTodo = currentTodo.slice(0, indexRemove).concat(currentTodo.slice(indexRemove+1));
+        console.log(currentTodo, 'currentTodo');
+        this.setState({ todos: currentTodo });
+        console.log(this.state.todos, '55555555555555');
+      });
   }
   render() {
     return (
