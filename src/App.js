@@ -17,42 +17,79 @@ class App extends Component {
     super(props);
     // this.deleteTodo = this.deleteTodo.bind(this);
     this.addTodo = this.addTodo.bind(this);
+    this.signUp = this.signUp.bind(this);
+    this.signin = this.signin.bind(this);
     this.state = { todos: [] };
-    // fb.database().ref('/todos').on('child_added', (data) => {
-    //   let obj = data.val();
-    //   obj.id = data.key;
-    //   let currentTodos = this.state.todos;
-    //   currentTodos.push(obj);
-    //   this.setState({ todos: currentTodos })
-    //   console.log(this.state.todos, 'obj');
-    // })
   }
 
   addTodo(ev) {
     ev.preventDefault();
     fb.database().ref('todos/').push({ todo: this.refs.todo.value })
       .then((v) => {
+        this.refs.todo.value = '';
+      })
+
+  }
+
+  signUp(ev) {
+    ev.preventDefault();
+    console.log(this.refs.email.value);
+    console.log(this.refs.password.value);
+    firebase.auth().createUserWithEmailAndPassword(this.refs.email.value, this.refs.password.value)
+      .then((user) => {
+        let userDetails = {
+          email: user.email,
+          uid: user.uid,
+          cell: '03413542800'
+        }
+        firebase.database().ref('users/' + user.uid).set(userDetails)
 
       })
-    this.refs.todo.value = '';
+      .catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log(errorCode, 'errorCode');
+        console.log(errorMessage, 'errorMessage');
+        // ...
+      });
   }
-  // deleteTodo(todoKey) {
-  //   fb.database().ref('todos/' + todoKey).remove()
-  //     .then((v) => {
-  //       let currentTodo = this.state.todos;
-  //       let indexRemove;
-  //       for (var i = 0; i < currentTodo.length; i++) {
-  //         if (currentTodo[i].id === todoKey) {
-  //           indexRemove = i;
-  //         }
-  //       }
-  //       currentTodo = currentTodo.slice(0, indexRemove).concat(currentTodo.slice(indexRemove+1));
-  //       this.setState({ todos: currentTodo });
-  //     });
-  // }
+  signin(ev) {
+    ev.preventDefault();
+    firebase.auth().signInWithEmailAndPassword(this.refs.email.value, this.refs.password.value)
+      .then((user) => {
+        console.log(user, 'signed in user');
+      })
+
+      .catch(function (error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log(errorCode, 'errorCode');
+        console.log(errorMessage, 'errorMessage');
+      });
+  }
+
   render() {
     return (
       <div className="App">
+
+        <div>
+          <form onSubmit={this.signUp}>
+            <input type="email" ref='email' />
+            <input type="password" ref='password' />
+            <button>Signup</button>
+          </form>
+        </div>
+
+
+        <div>
+          <form onSubmit={this.signin}>
+            <input type="email" ref='email' />
+            <input type="password" ref='password' />
+            <button>Signin</button>
+          </form>
+        </div>
+
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h2>Welcome to React</h2>
